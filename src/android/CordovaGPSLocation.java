@@ -18,6 +18,8 @@
  */
 package fr.louisbl.cordova.gpslocation;
 
+import java.util.List;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
@@ -30,6 +32,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
+import android.widget.Toast;
 
 /*
  * This class is the interface to the Geolocation.  It's bound to the geo object.
@@ -39,7 +42,7 @@ public class CordovaGPSLocation extends CordovaPlugin {
 
 	private CordovaLocationListener mListener;
 	private LocationManager mLocationManager;
-
+	private String locationProvider;
 	LocationManager getLocationManager() {
 		return mLocationManager;
 	}
@@ -195,9 +198,6 @@ public class CordovaGPSLocation extends CordovaPlugin {
         		} else if (providers.contains(LocationManager.GPS_PROVIDER)) {
         			// 如果是GPS
         			locationProvider = LocationManager.GPS_PROVIDER;
-        		} else {
-        			Toast.makeText(this, "没有可用的位置提供器", Toast.LENGTH_SHORT).show();
-        			return;
         		}
 		Location last = mLocationManager.getLastKnownLocation(locationProvider);
 		// Check if we can use lastKnownLocation to get a quick reading and use
