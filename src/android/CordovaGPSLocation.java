@@ -204,6 +204,7 @@ public class CordovaGPSLocation extends CordovaPlugin {
         			locationProvider = LocationManager.GPS_PROVIDER;
         		}
 		Location last = mLocationManager.getLastKnownLocation(locationProvider);
+		Log.e("xulei","last-->"+last);
 		// Check if we can use lastKnownLocation to get a quick reading and use
 		// less battery
 		if (last != null && (System.currentTimeMillis() - last.getTime()) <= maximumAge) {
