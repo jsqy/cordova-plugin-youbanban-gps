@@ -32,6 +32,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
+import android.util.Log;
 import android.widget.Toast;
 
 /*
@@ -190,13 +191,16 @@ public class CordovaGPSLocation extends CordovaPlugin {
 			e.printStackTrace();
 			maximumAge = 0;
 		}
+		Log.e("xulei","走到这了");
 		// 获取所有可用的位置提供器
         		List<String> providers = mLocationManager.getProviders(true);
         		if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
+        			Log.e("xulei","获取的是网络");
         			// 如果是Network
         			locationProvider = LocationManager.NETWORK_PROVIDER;
         		} else if (providers.contains(LocationManager.GPS_PROVIDER)) {
         			// 如果是GPS
+        			Log.e("xulei","获取的是gps");
         			locationProvider = LocationManager.GPS_PROVIDER;
         		}
 		Location last = mLocationManager.getLastKnownLocation(locationProvider);
