@@ -44,6 +44,7 @@ public class CordovaGPSLocation extends CordovaPlugin {
 	private CordovaLocationListener mListener;
 	private LocationManager mLocationManager;
 	private String locationProvider;
+
 	LocationManager getLocationManager() {
 		return mLocationManager;
 	}
@@ -51,7 +52,8 @@ public class CordovaGPSLocation extends CordovaPlugin {
 	@Override
 	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
 		super.initialize(cordova, webView);
-		mLocationManager = (LocationManager) cordova.getActivity().getSystemService(Context.LOCATION_SERVICE);
+		mLocationManager = (LocationManager) cordova.getActivity()
+				.getSystemService(Context.LOCATION_SERVICE);
 	}
 
 	/**
@@ -69,7 +71,8 @@ public class CordovaGPSLocation extends CordovaPlugin {
 	public boolean execute(final String action, final JSONArray args,
 			final CallbackContext callbackContext) {
 
-		if (action == null || !action.matches("getLocation|addWatch|clearWatch")) {
+		if (action == null
+				|| !action.matches("getLocation|addWatch|clearWatch")) {
 			return false;
 		}
 
@@ -81,7 +84,8 @@ public class CordovaGPSLocation extends CordovaPlugin {
 		}
 
 		if (isGPSdisabled()) {
-			fail(CordovaLocationListener.POSITION_UNAVAILABLE, "GPS is disabled on this device.", callbackContext, false);
+			fail(CordovaLocationListener.POSITION_UNAVAILABLE,
+					"GPS is disabled on this device.", callbackContext, false);
 			return true;
 		}
 
@@ -173,7 +177,8 @@ public class CordovaGPSLocation extends CordovaPlugin {
 	private boolean isGPSdisabled() {
 		boolean gps_enabled;
 		try {
-			gps_enabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+			gps_enabled = mLocationManager
+					.isProviderEnabled(LocationManager.GPS_PROVIDER);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			gps_enabled = false;
@@ -181,7 +186,6 @@ public class CordovaGPSLocation extends CordovaPlugin {
 
 		return !gps_enabled;
 	}
-
 
 	private void getLastLocation(JSONArray args, CallbackContext callbackContext) {
 		int maximumAge;
@@ -191,29 +195,23 @@ public class CordovaGPSLocation extends CordovaPlugin {
 			e.printStackTrace();
 			maximumAge = 0;
 		}
-		Log.e("xulei","走到这了");
 		// 获取所有可用的位置提供器
-        		List<String> providers = mLocationManager.getProviders(true);
-        		if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
-        			Log.e("xulei","获取的是网络");
-        			// 如果是Network
-        			locationProvider = LocationManager.NETWORK_PROVIDER;
-        		} else if (providers.contains(LocationManager.GPS_PROVIDER)) {
-        			// 如果是GPS
-        			Log.e("xulei","获取的是gps");
-        			locationProvider = LocationManager.GPS_PROVIDER;
-        		}
+		List<String> providers = mLocationManager.getProviders(true);
+		if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
+			// 如果是Network
+			locationProvider = LocationManager.NETWORK_PROVIDER;
+		} else {
+			// 如果是GPS
+			locationProvider = LocationManager.GPS_PROVIDER;
+		}
 		Location last = mLocationManager.getLastKnownLocation(locationProvider);
-		Log.e("xulei","last-->"+last);
 		// Check if we can use lastKnownLocation to get a quick reading and use
 		// less battery
 		if (last != null) {
-			Log.e("xulei","判断-->01");
-			PluginResult result = new PluginResult(PluginResult.Status.OK, returnLocationJSON(last));
-			result.setKeepCallback(true);
+			PluginResult result = new PluginResult(PluginResult.Status.OK,
+					returnLocationJSON(last));
 			callbackContext.sendPluginResult(result);
 		} else {
-			Log.e("xulei","判断-->02");
 			getCurrentLocation(callbackContext, Integer.MAX_VALUE);
 		}
 	}
