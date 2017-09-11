@@ -18,6 +18,7 @@
  */
 package fr.louisbl.cordova.gpslocation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.cordova.CallbackContext;
@@ -29,7 +30,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
@@ -68,9 +73,18 @@ public class CordovaGPSLocation extends CordovaPlugin {
 	 * @return True if the action was valid, or false if not.
 	 * @throws JSONException
 	 */
+	private LocationManager locationManager;
+
+	private Activity mActivity;
+
+	private CallbackContext mCcallbackContext;
+	private JSONArray mArgs;
+
 	public boolean execute(final String action, final JSONArray args,
 			final CallbackContext callbackContext) {
-
+		this.mArgs = args;
+		this.mCcallbackContext = callbackContext;
+		mActivity = this.cordova.getActivity();
 		if (action == null
 				|| !action.matches("getLocation|addWatch|clearWatch")) {
 			return false;
@@ -89,14 +103,39 @@ public class CordovaGPSLocation extends CordovaPlugin {
 			return true;
 		}
 
+		locationManager = (LocationManager) cordova.getActivity()
+				.getSystemService(Context.LOCATION_SERVICE);
 		if (action.equals("getLocation")) {
-			getLastLocation(args, callbackContext);
+			if (cordova.hasPermission(READ)) {
+				getLastLocation(args, callbackContext);
+				// search(executeArgs);
+			} else {
+				getReadPermission(SEARCH_REQ_CODE);
+			}
+
 		} else if (action.equals("addWatch")) {
 			addWatch(id, callbackContext);
 		}
 
 		return true;
 	}
+
+	public void onRequestPermissionResult(int requestCode,
+			String[] permissions, int[] grantResults) throws JSONException {
+		if (cordova.hasPermission(READ)) {
+			getLastLocation(mArgs, mCcallbackContext);
+		} else {
+			getLastLocation(mArgs, mCcallbackContext);
+		}
+
+	}
+
+	protected void getReadPermission(int requestCode) {
+		cordova.requestPermission(this, requestCode, READ);
+	}
+
+	public static final String READ = Manifest.permission.ACCESS_FINE_LOCATION;
+	public static final int SEARCH_REQ_CODE = 0;
 
 	/**
 	 * Called when the activity is to be shut down. Stop listener.
@@ -185,6 +224,10 @@ public class CordovaGPSLocation extends CordovaPlugin {
 		}
 
 		return !gps_enabled;
+	}
+
+	private void showMsg(String msg) {
+		Toast.makeText(mActivity, msg, Toast.LENGTH_SHORT).show();
 	}
 
 	private void getLastLocation(JSONArray args, CallbackContext callbackContext) {
