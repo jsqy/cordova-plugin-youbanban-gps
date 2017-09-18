@@ -250,13 +250,14 @@ public class CordovaGPSLocation extends CordovaPlugin {
 		Location last = mLocationManager.getLastKnownLocation(locationProvider);
 		// Check if we can use lastKnownLocation to get a quick reading and use
 		// less battery
-		if (last != null) {
-			PluginResult result = new PluginResult(PluginResult.Status.OK,
-					returnLocationJSON(last));
-			callbackContext.sendPluginResult(result);
-		} else {
-			getCurrentLocation(callbackContext, Integer.MAX_VALUE);
-		}
+		PluginResult result = new PluginResult(PluginResult.Status.OK,
+				returnLocationJSON(last));
+		callbackContext.sendPluginResult(result);
+//		if (last != null) {
+//
+//		} else {
+//			getCurrentLocation(callbackContext, Integer.MAX_VALUE);
+//		}
 	}
 
 	private void clearWatch(String id) {
