@@ -97,11 +97,11 @@ public class CordovaGPSLocation extends CordovaPlugin {
 			return true;
 		}
 
-		if (isGPSdisabled()) {
-			fail(CordovaLocationListener.POSITION_UNAVAILABLE,
-					"GPS is disabled on this device.", callbackContext, false);
-			return true;
-		}
+//		if (isGPSdisabled()) {
+//			fail(CordovaLocationListener.POSITION_UNAVAILABLE,
+//					"GPS is disabled on this device.", callbackContext, false);
+//			return true;
+//		}
 
 		locationManager = (LocationManager) cordova.getActivity()
 				.getSystemService(Context.LOCATION_SERVICE);
@@ -247,7 +247,8 @@ public class CordovaGPSLocation extends CordovaPlugin {
 			// 如果是GPS
 			locationProvider = LocationManager.GPS_PROVIDER;
 		}
-		Location last = mLocationManager.getLastKnownLocation(locationProvider);
+		Location last = null;
+		last = mLocationManager.getLastKnownLocation(locationProvider);
 		// Check if we can use lastKnownLocation to get a quick reading and use
 		// less battery
 		PluginResult result = new PluginResult(PluginResult.Status.OK,
