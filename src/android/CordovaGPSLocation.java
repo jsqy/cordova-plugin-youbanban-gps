@@ -56,9 +56,18 @@ public class CordovaGPSLocation extends CordovaPlugin {
 		return mLocationManager;
 	}
 
+	public static final int INIT_REQ_CODE = 1;
+
 	@Override
 	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
 		super.initialize(cordova, webView);
+		if (cordova.hasPermission(READ))
+			requestLocationUpdates();
+		else
+			getReadPermission(INIT_REQ_CODE);
+	}
+
+	void requestLocationUpdates() {
 		LocationManager locationManager = (LocationManager) cordova.getActivity()
 				.getSystemService(Context.LOCATION_SERVICE);
 		List<String> providers = locationManager.getProviders(true);
@@ -142,6 +151,11 @@ public class CordovaGPSLocation extends CordovaPlugin {
 
 	public void onRequestPermissionResult(int requestCode,
 			String[] permissions, int[] grantResults) throws JSONException {
+
+		if (requestCode == INIT_REQ_CODE){
+			requestLocationUpdates();
+			return;
+		}
 		if (cordova.hasPermission(READ)) {
 			getLastLocation(mArgs, mCcallbackContext);
 		} else {
