@@ -37,6 +37,8 @@ import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.location.LocationListener;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -48,7 +50,7 @@ public class CordovaGPSLocation extends CordovaPlugin {
 
 	private CordovaLocationListener mListener;
 	private LocationManager mLocationManager;
-	private String locationProvider;
+	Location location;
 
 	LocationManager getLocationManager() {
 		return mLocationManager;
@@ -57,8 +59,26 @@ public class CordovaGPSLocation extends CordovaPlugin {
 	@Override
 	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
 		super.initialize(cordova, webView);
-		mLocationManager = (LocationManager) cordova.getActivity()
+		LocationManager locationManager = (LocationManager) cordova.getActivity()
 				.getSystemService(Context.LOCATION_SERVICE);
+		List<String> providers = locationManager.getProviders(true);
+		String provider = providers.contains(LocationManager.NETWORK_PROVIDER) ?
+			LocationManager.NETWORK_PROVIDER:
+			LocationManager.GPS_PROVIDER;
+		Log.d(LocationUtils.APPTAG, "use provider: " + provider);
+		locationManager.requestLocationUpdates(provider, 2000, 0, new LocationListener() {
+			@Override
+			public void onStatusChanged(String provider, int status, Bundle extras) {}
+			@Override
+			public void onProviderEnabled(String provider) {}
+			@Override
+			public void onProviderDisabled(String provider) {}
+			@Override
+			public void onLocationChanged(Location location) {
+				Log.d(LocationUtils.APPTAG, "onLocationChanged");
+				CordovaGPSLocation.this.location = location;
+			}
+		});
 	}
 
 	/**
@@ -231,34 +251,10 @@ public class CordovaGPSLocation extends CordovaPlugin {
 	}
 
 	private void getLastLocation(JSONArray args, CallbackContext callbackContext) {
-		int maximumAge;
-		try {
-			maximumAge = args.getInt(0);
-		} catch (JSONException e) {
-			e.printStackTrace();
-			maximumAge = 0;
-		}
-		// 获取所有可用的位置提供器
-		List<String> providers = mLocationManager.getProviders(true);
-		if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
-			// 如果是Network
-			locationProvider = LocationManager.NETWORK_PROVIDER;
-		} else {
-			// 如果是GPS
-			locationProvider = LocationManager.GPS_PROVIDER;
-		}
-		Location last = null;
-		last = mLocationManager.getLastKnownLocation(locationProvider);
-		// Check if we can use lastKnownLocation to get a quick reading and use
-		// less battery
-		PluginResult result = new PluginResult(PluginResult.Status.OK,
-				returnLocationJSON(last));
+		PluginResult result = location != null ?
+			new PluginResult(PluginResult.Status.OK, returnLocationJSON(location)) :
+			new PluginResult(PluginResult.Status.ERROR, new JSONObject());
 		callbackContext.sendPluginResult(result);
-//		if (last != null) {
-//
-//		} else {
-//			getCurrentLocation(callbackContext, Integer.MAX_VALUE);
-//		}
 	}
 
 	private void clearWatch(String id) {
